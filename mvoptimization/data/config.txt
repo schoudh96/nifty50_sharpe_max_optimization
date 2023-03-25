@@ -1,0 +1,4 @@
+[DATA]
+
+holdings=nifty50_holdings.csv
+start_date=2014-12-31
