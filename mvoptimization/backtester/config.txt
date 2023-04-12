@@ -1,0 +1,26 @@
+[DATA]
+portfoliopathkey = thematic-stock-tags/energy_transition_portfolio2.csv
+levelspathkey = athena/output/Energy_Transition_ScoresAll_Returns.csv
+rm_date = 2023_02_06
+rm_date2 = 202301
+rm_database = rm_2023_02_06_prod_glb_industry_std_usd
+portfolio_bucket = [1, 2, 3]
+theme_name = Energy Transition Theme
+report_title = Energy Transition Theme All Scores Backtest Report
+report_output_path = Energy Transition Theme Report 27Mar.html
+
+[AWS]
+bucket = quant-shayan
+s3_staging_dir = s3://risk-model-2.0-temp/
+region_name = us-east-1
+
+[SIGNALTESTING]
+signaltesting = 1
+factor = combined_score
+quantiles = 1
+periods = [1, 7, 30, 90, 180]
+attribution = 1
+
+[generate]
+returns = 1
+

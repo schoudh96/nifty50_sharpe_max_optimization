@@ -1,4 +1,14 @@
 [DATA]
-
 holdings=nifty50_holdings.csv
 start_date=2014-12-31
+
+[BACKTEST]
+rebalance_freq = 12
+start_date = 2020-12-31
+
+[TRAINING]
+train_period = 24
+
+[OPTIMIZER]
+min_weight = 0.01
+max_weight = 0.1

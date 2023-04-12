@@ -3,7 +3,6 @@ import configparser
 import os
 from datetime import datetime,date,time,timedelta
 from nsepy import get_history
-import yfinance as yf
 
 def get_companies(holdings):
     all_symbols = holdings['Symbol']
@@ -12,33 +11,21 @@ def get_companies(holdings):
 
 def set_type_start_date(start):
     if isinstance(start, datetime):
-        start = start.replace(hour = 0, minute = 0, second = 0, microsecond=0)
+        start = start.date()
     elif isinstance(start, str):
-        start = datetime.strptime(start, '%Y-%m-%d')
+        start = datetime.strptime(start, '%Y-%m-%d').date()
     else:
         raise TypeError('Start date should be datetime or str.')
     return start
 
-def check_end_date_type(end):
-    if isinstance(end, str):
-        end = datetime.strtime(end, '%Y-%m-%d')
-    elif isinstance(end, datetime):
-        end = end.replace(hour = 0, minute = 0, second = 0, microsecond=0)
-    else:
-        raise TypeError('End date should be of type datetime or str')
-
-def get_prices(companies, start, end=datetime.today()):
-    end = check_end_date_type(end)
+def get_prices(companies, start, end=datetime.today().date()):
     start = set_type_start_date(start)
     prices = pd.DataFrame()
-    # import pdb
-    # pdb.set_trace()
+    import pdb
+    pdb.set_trace()
     for ticker in companies:
         print(f"Pulling price for stock: {ticker}")
-        ticker = ticker + '.NS'
-        company = yf.Ticker(ticker)
-        company._tz = 'Asia/Kolkata'
-        prices[ticker] = company.history(start=start,end=end)['Close']
+        prices[ticker] = get_history(ticker,start,end)['Close']
 
     return prices
 
@@ -52,5 +39,4 @@ unique_companies = get_companies(holdings)
 start = config['DATA']['start_date']
 prices = get_prices(unique_companies, start)
 
-prices.index = pd.to_datetime(prices.index).strftime('%Y-%m-%d')
 prices.to_csv('mvoptimization/data/prices_Nifty50_'+datetime.today().strftime('%Y_%m_%d')+'.csv')
