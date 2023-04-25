@@ -11,6 +11,7 @@ import pandas as pd
 from mvoptimization.optimizers.efficient_frontier import EfficientFrontier
 from mvoptimization.optimizers import calc_covariance
 from mvoptimization.optimizers import expected_returns
+from mvoptimization.backtester.backtest_report import backtest_report
 from datetime import datetime
 import numpy as np
 import configparser
@@ -51,6 +52,15 @@ pricedata.set_index('Date', inplace = True)
 config = configparser.ConfigParser()
 config.read('mvoptimization/data/config.txt')
 
+#benchmark price data
+bmk_flag = int(config['DATA']['benchmark_data'])
+if bmk_flag:
+    bmk_symbol = config['DATA']['benchmark_symbol'] 
+    bmk_pricefile = ''.join([f'prices_bmk_{bmk_symbol}_',today,'.csv'])
+    bmk_pricedata = pd.read_csv(os.path.join('mvoptimization/data', bmk_pricefile))
+else:
+    bmk_pricedata = None
+
 #rebal_freq in months and start_date shows start date of out of sample period
 rebal_freq = config['BACKTEST']['rebalance_freq']
 start_date = config['BACKTEST']['start_date']
@@ -80,4 +90,8 @@ for date in rebal_dates:
 
 #backtesting the generated portfolios
 
+pricereturns, _ = expected_returns.mean_historical_return(pricedata)
+trading_port = trading_port[['date', 'ticker', 'weight']]
 
+#backtest
+bt_results = backtest_report(trading_port, returns = pricereturns, bmk_levels = bmk_pricedata) 

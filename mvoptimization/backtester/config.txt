@@ -8,7 +8,7 @@ portfolio_bucket = [1, 2, 3]
 theme_name = Energy Transition Theme
 report_title = Energy Transition Theme All Scores Backtest Report
 report_output_path = Energy Transition Theme Report 27Mar.html
-
+report_benchmark_name = something
 [AWS]
 bucket = quant-shayan
 s3_staging_dir = s3://risk-model-2.0-temp/

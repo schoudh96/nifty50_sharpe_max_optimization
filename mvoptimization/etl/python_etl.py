@@ -31,8 +31,6 @@ def get_prices(companies, start, end=datetime.today()):
     end = check_end_date_type(end)
     start = set_type_start_date(start)
     prices = pd.DataFrame()
-    # import pdb
-    # pdb.set_trace()
     for ticker in companies:
         print(f"Pulling price for stock: {ticker}")
         ticker = ticker + '.NS'
@@ -51,6 +49,13 @@ unique_companies = get_companies(holdings)
 
 start = config['DATA']['start_date']
 prices = get_prices(unique_companies, start)
-
 prices.index = pd.to_datetime(prices.index).strftime('%Y-%m-%d')
 prices.to_csv('mvoptimization/data/prices_Nifty50_'+datetime.today().strftime('%Y_%m_%d')+'.csv')
+
+bmk_flag = int(config['DATA']['benchmark_data'])
+
+if bmk_flag: 
+    bmk_symbol = config['DATA']['benchmark_symbol'] 
+    bmk_prices = get_prices([bmk_symbol], start)
+    bmk_prices.index = pd.to_datetime(bmk_prices.index).strftime('%Y-%m-%d')
+    bmk_prices.to_csv(f'mvoptimization/data/prices_bmk_{bmk_symbol}_'+datetime.today().strftime('%Y_%m_%d')+'.csv')

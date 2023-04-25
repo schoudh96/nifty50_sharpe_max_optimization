@@ -1,10 +1,25 @@
 [DATA]
 holdings=nifty50_holdings.csv
+benchmark_data = 1
+benchmark_symbol = NIFTY 50
 start_date=2014-12-31
 
 [BACKTEST]
 rebalance_freq = 12
 start_date = 2020-12-31
+
+[BACKTEST REPORT]
+theme_name = MV Optimization Sample Cov 1
+report_title = MV Optimization Sample Cov 1
+report_benchmark_name = something
+report_output_path = mvoptimization/backtester/results/MV Optimization Sample Cov 1.html
+
+[SIGNALTESTING]
+signaltesting = 0
+factor = combined_score
+quantiles = 1
+periods = [1, 7, 30, 90, 180]
+attribution = 0
 
 [TRAINING]
 train_period = 24
