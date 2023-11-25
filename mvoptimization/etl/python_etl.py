@@ -2,7 +2,7 @@ import pandas as pd
 import configparser
 import os
 from datetime import datetime,date,time,timedelta
-from nsepy import get_history
+# from nsepy import get_history
 import yfinance as yf
 
 def get_companies(holdings):
@@ -27,13 +27,13 @@ def check_end_date_type(end):
     else:
         raise TypeError('End date should be of type datetime or str')
 
-def get_prices(companies, start, end=datetime.today()):
+def get_prices(companies, start, end=datetime.today(), bmk_symbol = False):
     end = check_end_date_type(end)
     start = set_type_start_date(start)
     prices = pd.DataFrame()
     for ticker in companies:
         print(f"Pulling price for stock: {ticker}")
-        ticker = ticker + '.NS'
+        ticker = ticker + '.NS' if not bmk_symbol else ticker
         company = yf.Ticker(ticker)
         company._tz = 'Asia/Kolkata'
         prices[ticker] = company.history(start=start,end=end)['Close']
@@ -50,12 +50,14 @@ unique_companies = get_companies(holdings)
 start = config['DATA']['start_date']
 prices = get_prices(unique_companies, start)
 prices.index = pd.to_datetime(prices.index).strftime('%Y-%m-%d')
+prices.index.name = "Date"
 prices.to_csv('mvoptimization/data/prices_Nifty50_'+datetime.today().strftime('%Y_%m_%d')+'.csv')
 
 bmk_flag = int(config['DATA']['benchmark_data'])
 
 if bmk_flag: 
     bmk_symbol = config['DATA']['benchmark_symbol'] 
-    bmk_prices = get_prices([bmk_symbol], start)
+    bmk_prices = get_prices([bmk_symbol], start, bmk_symbol = True)
     bmk_prices.index = pd.to_datetime(bmk_prices.index).strftime('%Y-%m-%d')
+    bmk_prices.index.name = "Date"
     bmk_prices.to_csv(f'mvoptimization/data/prices_bmk_{bmk_symbol}_'+datetime.today().strftime('%Y_%m_%d')+'.csv')

@@ -1,23 +1,23 @@
 import pandas as pd
 import numpy as np
 from datetime import date
-from get_returns import *
-from backtest import *
+from .get_returns import *
+from .backtest import *
 import matplotlib.pyplot as plt
 from ffn import *
 import os
-import aws
+#import aws
 import configparser
 import pdb
 import json
-from signaltest_report import factor_testing as ft
-from backtest import fetch_bt
+#from signaltest_report import factor_testing as ft
+from .backtest import fetch_bt
 import quantstats as qs
-import analysis as an
+#import analysis as an
 import warnings
 warnings.filterwarnings('ignore')
 
-def backtest_report(holdings, prices = None, returns = None, bmk_levels = None):
+def backtest_report(holdings, prices = pd.DataFrame(), returns = None, bmk_levels = None, **kwargs):
 
     """
     Generates the html backtest report given holdings and returns dataframe.
@@ -59,20 +59,25 @@ def backtest_report(holdings, prices = None, returns = None, bmk_levels = None):
     
     print(levels)
 
-    if bmk_levels:
+    if not bmk_levels.empty:
         bmk_levels['Date'] = pd.to_datetime(bmk_levels['Date'])
         bmk_levels.set_index('Date', inplace = True)
         bmk_levels = pd.Series(bmk_levels.values.ravel(), index = bmk_levels.index, name = bmk_levels.columns[0])
+        bmk_levels= bmk_levels.pct_change().dropna()
 
     print('Generating report')
     print(qs_title)
+
+
+    if not os.path.exists(qs_output):
+        folder = os.path.dirname(qs_output)
+        os.makedirs(folder)
+    
+    #save weights 
+    holdings.to_csv(os.path.join(os.path.dirname(qs_output), ".".join([qs_theme_name, "csv"])), index = False)
+    
+    #generate and save html
     qs.reports.html(returns, benchmark = bmk_levels, corr = None, turnover = None, ic = None, rf_rate = None, title = qs_title, output = qs_output, strategy_name = qs_theme_name, benchmark_name = qs_benchmark_name)
-    
-    
-    
-    
-    
-    
     
     
     

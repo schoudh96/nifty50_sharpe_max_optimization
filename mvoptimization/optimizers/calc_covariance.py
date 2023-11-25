@@ -62,3 +62,27 @@ def sample_covariance(returns:pd.DataFrame, frequency:int = 252) -> pd.DataFrame
     else:
         cov_matrix = fix_nonpositive_semidefinite(cov_matrix)
         return cov_matrix
+    
+
+def exponential_covariance(returns:pd.DataFrame, span:int, frequency:int = 252) -> pd.DataFrame:
+    """
+    Calculate the annual exponential covariance matrix of daily asset returns.
+
+    :param returns: returns of the adjusted price series
+    :param frequency: days to use for annualization
+
+    :returns annualised sample covariance matrix
+    :rtype pd.DataFrame
+    """
+
+    if not isinstance(returns, pd.DataFrame):
+        raise TypeError(f'Returns DataFrame has to be a pandas DataFrame.Type provided is {type(returns)}.')
+    
+    cov_matrix = pd.ewmcov(returns, span = span) * frequency
+
+    if _is_positive_semidefinite(cov_matrix):
+        return cov_matrix
+    
+    else:
+        cov_matrix = fix_nonpositive_semidefinite(cov_matrix)
+        return cov_matrix

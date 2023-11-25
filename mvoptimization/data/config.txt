@@ -1,18 +1,20 @@
 [DATA]
 holdings=nifty50_holdings.csv
 benchmark_data = 1
-benchmark_symbol = NIFTY 50
-start_date=2014-12-31
+benchmark_symbol = NIFTYBEES.NS
+start_date=2018-12-31
 
 [BACKTEST]
 rebalance_freq = 12
 start_date = 2020-12-31
 
 [BACKTEST REPORT]
-theme_name = MV Optimization Sample Cov 1
-report_title = MV Optimization Sample Cov 1
-report_benchmark_name = something
-report_output_path = mvoptimization/backtester/results/MV Optimization Sample Cov 1.html
+theme_name = MVO NIFTY50 Strategy 0.1_15 constraint
+report_title = Mean Variance Aware NIFTY 0.1_15 constraint vs NIFTY 50 ETF
+report_benchmark_name = NIFTY50 ETF
+strategy_name = MVO Nifty50 Strategy 0.1_15 constraint
+bmk_name = NIFTY50 ETF
+report_output_path = results/mvo_nifty_vs_niftybees_etf_0.1_15_constraint/mvo_nifty_vs_niftybees_etf_0.1_15_constraint.html
 
 [SIGNALTESTING]
 signaltesting = 0
@@ -25,5 +27,5 @@ attribution = 0
 train_period = 24
 
 [OPTIMIZER]
-min_weight = 0.01
-max_weight = 0.1
+min_weight = 0.001
+max_weight = 0.15

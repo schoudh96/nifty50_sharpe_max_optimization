@@ -30,7 +30,7 @@ def convert_prices_to_returns(prices, log_returns):
     
     return returns
 
-def fetch_bt(holdings, prices = None, returns = None, rebal_freq = 1):
+def fetch_bt(holdings, prices = pd.DataFrame(), returns = None, rebal_freq = 1):
     """
     Computes the backtest for given portfolios.
     Either of prices or returns along with holdings should be provided.

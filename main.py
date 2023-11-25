@@ -6,7 +6,7 @@ Created on Tue Mar 21 18:51:30 2023
 """
 import os
 
-os.chdir(r'C:\Users\schoudh\OneDrive - MORNINGSTAR INC\QR\QR\Materials\Projects\pyportfolioopt\meanvarianceoptimization')
+#os.chdir(r'C:\Users\schoudh\OneDrive - MORNINGSTAR INC\QR\QR\Materials\Projects\pyportfolioopt\meanvarianceoptimization')
 import pandas as pd
 from mvoptimization.optimizers.efficient_frontier import EfficientFrontier
 from mvoptimization.optimizers import calc_covariance
@@ -47,12 +47,13 @@ _ = check_generate_price_file(today, pricefile)
 pricedata = pd.read_csv(os.path.join('mvoptimization/data', pricefile))
 pricedata['Date'] = pd.to_datetime(pricedata['Date']).dt.strftime('%Y-%m-%d')
 pricedata.set_index('Date', inplace = True)
+pricedata.dropna(axis= 1, how = 'any')
 
 #create in and out of sample data
 config = configparser.ConfigParser()
 config.read('mvoptimization/data/config.txt')
 
-#benchmark price data
+#benchmark price data and convert to returns
 bmk_flag = int(config['DATA']['benchmark_data'])
 if bmk_flag:
     bmk_symbol = config['DATA']['benchmark_symbol'] 
@@ -89,9 +90,10 @@ for date in rebal_dates:
     trading_port = trading_port.append(portfolio)
 
 #backtesting the generated portfolios
-
 pricereturns, _ = expected_returns.mean_historical_return(pricedata)
 trading_port = trading_port[['date', 'ticker', 'weight']]
 
 #backtest
+#strategy_name, bmk_name = config['BACKTEST REPORT']['strategy_name'], config['BACKTEST REPORT']['bmk_name']
+#strategy_title = strategy_name, benchmark_title = bmk_name
 bt_results = backtest_report(trading_port, returns = pricereturns, bmk_levels = bmk_pricedata) 

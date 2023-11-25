@@ -577,8 +577,8 @@ def portfolio_performance(
             print("Annual volatility: {:.1f}%".format(100 * sigma))
         return None, sigma, None
 
-
-def _get_all_args(expression: cp.Expression) -> List[cp.Expression]:
+# _get_all_args(expression: cp.Expression) -> List[cp.Expression]
+def _get_all_args(expression):
     """
     Helper function to recursively get all arguments from a cvxpy expression
 
