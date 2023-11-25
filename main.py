@@ -5,8 +5,6 @@ Created on Tue Mar 21 18:51:30 2023
 @author: schoudh
 """
 import os
-
-#os.chdir(r'C:\Users\schoudh\OneDrive - MORNINGSTAR INC\QR\QR\Materials\Projects\pyportfolioopt\meanvarianceoptimization')
 import pandas as pd
 from mvoptimization.optimizers.efficient_frontier import EfficientFrontier
 from mvoptimization.optimizers import calc_covariance
