@@ -1,1 +1,3 @@
-"# meanvarianceoptimization" 
+The mvoptimization project has its own backtester, covariance matrix calculation, ETL, optimization and backtest reporting tool. The aim of this project is to study the efficacy of different optmization techniques and its ability to beat classical asset allocation schemes. 
+
+Medium article link to max-sharpe asset allocation vs passive ETF returns for the NSE NIFTY50 universe : https://medium.com/@shayan.choudhury1996/can-portfolio-optimization-really-beat-nifty50-9341a839f409 
