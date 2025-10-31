@@ -14,7 +14,7 @@ report_title = Mean Variance Aware NIFTY 0.1_15 constraint vs NIFTY 50 ETF
 report_benchmark_name = NIFTY50 ETF
 strategy_name = MVO Nifty50 Strategy 0.1_15 constraint
 bmk_name = NIFTY50 ETF
-report_output_path = results/mvo_nifty_vs_niftybees_etf_0.1_15_constraint/mvo_nifty_vs_niftybees_etf_0.1_15_constraint.html
+report_output_path = results/mvo_nifty_vs_niftybees_etf_0.1_15_constraint/mvo_nifty_vs_niftybees_etf_0.1_15_constraint_31Oct.html
 
 [SIGNALTESTING]
 signaltesting = 0

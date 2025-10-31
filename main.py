@@ -4,15 +4,19 @@ Created on Tue Mar 21 18:51:30 2023
 
 @author: schoudh
 """
+
 import os
 import pandas as pd
 from mvoptimization.optimizers.efficient_frontier import EfficientFrontier
 from mvoptimization.optimizers import calc_covariance
 from mvoptimization.optimizers import expected_returns
 from mvoptimization.backtester.backtest_report import backtest_report
+from mvoptimization.covariance_estimation.covariance_estimation import CovarianceEstimator
 from datetime import datetime
 import numpy as np
 import configparser
+
+os.chdir(os.getcwd())
 
 def remove_files(reqd_file):
     for fname in os.listdir('mvoptimization/data'):
@@ -38,8 +42,9 @@ def check_generate_price_file(date, reqd_file):
     
 #price data information
 today = datetime.today().strftime('%Y_%m_%d')
-pricefile = ''.join(['prices_Nifty50_',today,'.csv'])
-_ = check_generate_price_file(today, pricefile)
+
+pricefile = ''.join(['prices_Nifty50_2023_11_25.csv'])
+# _ = check_generate_price_file(today, pricefile)
 
 # Read in price data
 pricedata = pd.read_csv(os.path.join('mvoptimization/data', pricefile))
@@ -66,6 +71,10 @@ start_date = config['BACKTEST']['start_date']
 number_rebal_periods =  np.ceil((pd.to_datetime('today') - pd.to_datetime(start_date)).days/365)
 rebal_dates = pd.date_range(start = start_date, periods = number_rebal_periods, freq = str(rebal_freq) + 'M').strftime('%Y-%m-%d').tolist()
 
+#run covariance estimation
+cov_estimator = CovarianceEstimator(pricedata)
+est_error, sample_error = cov_estimator.run_oos_testing(cutoff_eigen_ratio=0.88, run_multiple_times=True, test_unique=True)
+
 trading_port = pd.DataFrame()
 for date in rebal_dates:
     train_period = int(config['TRAINING']['train_period'])
@@ -74,8 +83,22 @@ for date in rebal_dates:
     sample_pricedata = pricedata.loc[(pricedata.index <= date) & (pricedata.index >= train_start_date)].copy()
 
     #calculate historical mean returns and covariance
+    
     returns, mu = expected_returns.mean_historical_return(sample_pricedata)
-    S = calc_covariance.sample_covariance(returns)
+    # print(f"returns head: {returns.head()}")
+    # print(f"returns tail: {returns.tail()}")
+    
+    # print(f"mu: {mu.head()}")
+    # print(f"length of returns = {len(returns)}")
+    S_corrsample = calc_covariance.sample_correlation(returns)
+
+    #Check eigenvalue spectrum
+    c_sample = calc_covariance.denoising_covariance(returns, S_corrsample)
+
+    S_exp = calc_covariance.exponential_covariance(returns, span = 60)
+    c_exp = calc_covariance.denoising_covariance(returns, S_exp)
+
+    break
 
     # Optimize for maximal Sharpe ratio
     weight_bounds_input = (config['OPTIMIZER']['min_weight'], config['OPTIMIZER']['max_weight'])
