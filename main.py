@@ -6,6 +6,7 @@ Created on Tue Mar 21 18:51:30 2023
 """
 
 import os
+import sys
 import pandas as pd
 from mvoptimization.optimizers.efficient_frontier import EfficientFrontier
 from mvoptimization.optimizers import calc_covariance
@@ -41,7 +42,8 @@ def check_generate_price_file(date, reqd_file):
         return reqd_file
     
 #price data information
-today = datetime.today().strftime('%Y_%m_%d')
+# today = datetime.today().strftime('%Y_%m_%d')
+today = '2023_11_25'
 
 pricefile = ''.join(['prices_Nifty50_2023_11_25.csv'])
 # _ = check_generate_price_file(today, pricefile)
@@ -73,7 +75,7 @@ rebal_dates = pd.date_range(start = start_date, periods = number_rebal_periods, 
 
 #run covariance estimation
 cov_estimator = CovarianceEstimator(pricedata)
-est_error, sample_error = cov_estimator.run_oos_testing(cutoff_eigen_ratio=0.88, run_multiple_times=True, test_unique=True)
+# est_error, sample_error = cov_estimator.run_oos_testing(cutoff_eigen_ratio=0.80, run_multiple_times=True, test_unique=True)
 
 trading_port = pd.DataFrame()
 for date in rebal_dates:
@@ -85,34 +87,49 @@ for date in rebal_dates:
     #calculate historical mean returns and covariance
     
     returns, mu = expected_returns.mean_historical_return(sample_pricedata)
-    # print(f"returns head: {returns.head()}")
-    # print(f"returns tail: {returns.tail()}")
+    S_corrsample = calc_covariance.sample_covariance(returns)
+    S = cov_estimator.factor_analysis_shared_covariance(S_corrsample,  cutoff_eigen_cum_ratio = 0.85, run_multiple_times = False)
     
-    # print(f"mu: {mu.head()}")
-    # print(f"length of returns = {len(returns)}")
-    S_corrsample = calc_covariance.sample_correlation(returns)
+    print(f'frobernius norm of sample covariance: {np.linalg.norm(S_corrsample, ord="fro")}')
+    print(f'frobernius norm of estimated covariance: {np.linalg.norm(S, ord="fro")}')
+    print(f'frobenius norm of difference covariance: {np.linalg.norm(S - S_corrsample, ord="fro")}')
+    print(f'\n\nS_cov sample : {S_corrsample}')
+    print(f'\n\nS_estimated : {S}')
+    # sys.exit()
+    # break    
 
     #Check eigenvalue spectrum
-    c_sample = calc_covariance.denoising_covariance(returns, S_corrsample)
+    # c_sample = calc_covariance.denoising_covariance(returns, S_corrsample)
 
-    S_exp = calc_covariance.exponential_covariance(returns, span = 60)
-    c_exp = calc_covariance.denoising_covariance(returns, S_exp)
+    # S_exp = calc_covariance.exponential_covariance(returns, span = 60)
+    # c_exp = calc_covariance.denoising_covariance(returns, S_exp)
 
-    break
+    #find clusters of co moving stocks
+
 
     # Optimize for maximal Sharpe ratio
     weight_bounds_input = (config['OPTIMIZER']['min_weight'], config['OPTIMIZER']['max_weight'])
     ef = EfficientFrontier(mu, S, weight_bounds = weight_bounds_input)
-    weights = ef.max_sharpe()
+    clusters = ef.create_clusters(returns, n_clusters = 10, set_optimal_k=7)
+
+    # clusters = ef.create_penalized_clusters(returns, n_clusters = 10, set_optimal_k=5, min_cluster_size = 4, lambda_pen = 10)    
+
+    print(f'clusters length = {[(i, len(cluster)) for i,cluster in enumerate(clusters)]}')
+    # weights = ef.max_sharpe()
+    # portfolio = pd.DataFrame(list(weights.items()), columns = ['ticker', 'weight'])
+    
+    #run nco max sharpe optimization
+    portfolio = ef.nco_max_sharpe(returns, clusters, weight_bounds_generic=weight_bounds_input)
     
     #add securities to trading portfolio
-    portfolio = pd.DataFrame(list(weights.items()), columns = ['ticker', 'weight'])
     portfolio['date'] = date 
     trading_port = trading_port.append(portfolio)
+
 
 #backtesting the generated portfolios
 pricereturns, _ = expected_returns.mean_historical_return(pricedata)
 trading_port = trading_port[['date', 'ticker', 'weight']]
+trading_port = trading_port.loc[trading_port.date <= pricereturns.index.max()]
 
 #backtest
 #strategy_name, bmk_name = config['BACKTEST REPORT']['strategy_name'], config['BACKTEST REPORT']['bmk_name']

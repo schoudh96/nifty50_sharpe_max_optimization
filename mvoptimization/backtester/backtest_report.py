@@ -12,7 +12,8 @@ import pdb
 import json
 #from signaltest_report import factor_testing as ft
 from .backtest import fetch_bt
-import quantstats as qs
+# import quantstats as qs
+from . import quantstats as qs
 #import analysis as an
 import warnings
 warnings.filterwarnings('ignore')
@@ -71,7 +72,8 @@ def backtest_report(holdings, prices = pd.DataFrame(), returns = None, bmk_level
 
     if not os.path.exists(qs_output):
         folder = os.path.dirname(qs_output)
-        os.makedirs(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
     
     #save weights 
     holdings.to_csv(os.path.join(os.path.dirname(qs_output), ".".join([qs_theme_name, "csv"])), index = False)

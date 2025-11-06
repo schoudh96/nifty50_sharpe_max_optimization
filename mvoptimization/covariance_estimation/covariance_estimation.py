@@ -49,7 +49,7 @@ class CovarianceEstimator:
         """
         Run factor analysis on shared covariance and complete PCA-based denoising.
         Smooth specific variances so as to improve estimation.
-        If ridge_penalty is True, apply ridge penalty to specific variances to improve inversion stability.
+        If ridge_penalty is True, apply ridge penalty to specific variances to improve inversion stability. : not implemented yet
 
         :param covar_matrix: Covariance matrix to denoise
         """
@@ -144,11 +144,13 @@ class CovarianceEstimator:
 
             # Estimate covariance on training data
             train_cov_matrix = self.sample_covariance(train_returns)
-            est_cov_matrix = self.factor_analysis_shared_covariance(train_cov_matrix, cutoff_eigen_cum_ratio=cutoff_eigen_ratio, run_multiple_times=True)
+            est_cov_matrix = self.factor_analysis_shared_covariance(train_cov_matrix, cutoff_eigen_cum_ratio=cutoff_eigen_ratio, run_multiple_times=run_multiple_times)
             
             # Sample covariance on test data
             test_cov_matrix = self.sample_covariance(test_returns)
 
+            print(f'\n Total sample covariance error against oos = {np.linalg.norm(train_cov_matrix - test_cov_matrix, ord="fro")}')
+            print(f'\n Total estimated covariance error against oos = {np.linalg.norm(est_cov_matrix - test_cov_matrix, ord="fro")}')
             if test_unique:
                 
                 # Compute frobenius error metric between estimated and test covariance
@@ -176,5 +178,5 @@ class CovarianceEstimator:
         avg_sampleerror = np.mean(sample_cov_errors)
         print(f"\nAverage covariance estimation error over OOS tests: {avg_esterror}")
         print(f"Average sample covariance error over OOS tests: {avg_sampleerror}\n\n")
-
+        
         return (avg_esterror, avg_sampleerror)
